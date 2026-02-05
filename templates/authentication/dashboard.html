@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - {{ employee.get_full_name_en }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .info-card {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: transform 0.3s;
+    }
+    
+    .info-card:hover {
+        transform: translateY(-5px);
+    }
+    
+    .section-title {
+        color: #667eea;
+        border-bottom: 2px solid #667eea;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .info-row {
+        padding: 10px 0;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .info-row:last-child {
+        border-bottom: none;
+    }
+    
+    .info-label {
+        font-weight: 600;
+        color: #555;
+    }
+    
+    .info-value {
+        color: #333;
+    }
+    
+    .badge-custom {
+        font-size: 14px;
+        padding: 8px 15px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-12 mb-4">
+        <div class="card">
+            <div class="card-body text-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px 15px 0 0;">
+                <h2><i class="fas fa-user-circle"></i> Welcome, {{ employee.get_full_name_en }}</h2>
+                <p class="mb-0">{{ employee.get_full_name_ar }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Database Information -->
+    <div class="col-lg-6 mb-4">
+        <div class="info-card">
+            <h4 class="section-title">
+                <i class="fas fa-database"></i> Database Information
+            </h4>
+            
+            <div class="info-row">
+                <div class="row">
+                    <div class="col-5 info-label">Employee ID:</div>
+                    <div class="col-7 info-value">{{ employee.employee_id }}</div>
+                </div>
+            </div>
+            
+            <div class="info-row">
+                <div class="row">
+                    <div class="col-5 info-label">AD Username:</div>
+                    <div class="col-7 info-value">
+                        <span class="badge bg-primary badge-custom">{{ employee.ad_username }}</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-row">
+                <div class="row">
+                    <div class="col-5 info-label">Full Name (EN):</div>
+                    <div class="col-7 info-value">{{ employee.get_full_name_en }}</div>
+                </div>
+            </div>
+            
+            <div class="info-row">
+                <div class="row">
+                    <div class="col-5 info-label">Full Name (AR):</div>
+                    <div class="col-7 info-value">{{ employee.get_full_name_ar }}</div>
+                </div>
+            </div>
+            
+            <div class="info-row">
+                <div class="row">
+                    <div class="col-5 info-label">Job Title:</div>
+                    <div class="col-7 info-value">{{ employee.job_title }}</div>
+                </div>
+            </div>
+            
+            <div class="info-row">
+                <div class="row">
+                    <div class="col-5 info-label">Department:</div>
+                    <div class="col-7 info-value">{{ employee.get_department_display }}</div>
+                </div>
+            </div>
+            
+            <div class="info-row">
+                <div class="row">
+                    <div class="col-5 info-label">Hire Date:</div>
+                    <div class="col-7 info-value">{{ employee.hire_date|date:"F d, Y" }}</div>
+                </div>
+            </div>
+            
+            <div class="info-row">
+                <div class="row">
+                    <div class="col-5 info-label">National ID:</div>
+                    <div class="col-7 info-value">{{ employee.national_id }}</div>
+                </div>
+            </div>
+            
+            <div class="info-row">
+                <div class="row">
+                    <div class="col-5 info-label">Status:</div>
+                    <div class="col-7 info-value">
+                        {% if employee.is_active %}
+                            <span class="badge bg-success badge-custom">Active</span>
+                        {% else %}
+                            <span class="badge bg-danger badge-custom">Inactive</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Active Directory Information -->
+    <div class="col-lg-6 mb-4">
+        <div class="info-card">
+            <h4 class="section-title">
+                <i class="fas fa-server"></i> Active Directory Information
+            </h4>
+            
+            {% if ad_data %}
+                <div class="info-row">
+                    <div class="row">
+                        <div class="col-5 info-label">Display Name:</div>
+                        <div class="col-7 info-value">{{ ad_data.display_name|default:"N/A" }}</div>
+                    </div>
+                </div>
+                
+                <div class="info-row">
+                    <div class="row">
+                        <div class="col-5 info-label">Email:</div>
+                        <div class="col-7 info-value">
+                            {% if ad_data.email %}
+                                <a href="mailto:{{ ad_data.email }}">{{ ad_data.email }}</a>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="info-row">
+                    <div class="row">
+                        <div class="col-5 info-label">Phone:</div>
+                        <div class="col-7 info-value">{{ ad_data.phone|default:"N/A" }}</div>
+                    </div>
+                </div>
+                
+                <div class="info-row">
+                    <div class="row">
+                        <div class="col-5 info-label">AD Department:</div>
+                        <div class="col-7 info-value">{{ ad_data.department|default:"N/A" }}</div>
+                    </div>
+                </div>
+                
+                <div class="info-row">
+                    <div class="row">
+                        <div class="col-5 info-label">AD Title:</div>
+                        <div class="col-7 info-value">{{ ad_data.title|default:"N/A" }}</div>
+                    </div>
+                </div>
+                
+                <div class="info-row">
+                    <div class="row">
+                        <div class="col-5 info-label">Organizational Unit:</div>
+                        <div class="col-7 info-value">
+                            <span class="badge bg-info badge-custom">{{ ad_data.ou|default:"N/A" }}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="info-row">
+                    <div class="row">
+                        <div class="col-5 info-label">UPN:</div>
+                        <div class="col-7 info-value">
+                            <small>{{ ad_data.upn|default:"N/A" }}</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="info-row">
+                    <div class="row">
+                        <div class="col-5 info-label">Distinguished Name:</div>
+                        <div class="col-7 info-value">
+                            <small class="text-muted">{{ ad_data.dn|default:"N/A" }}</small>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i> Could not retrieve Active Directory information
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 text-center">
+        <small class="text-white-50">
+            <i class="fas fa-info-circle"></i> Last updated: {{ employee.updated_at|date:"F d, Y H:i" }}
+        </small>
+    </div>
+</div>
+{% endblock %}
