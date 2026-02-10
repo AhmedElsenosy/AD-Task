@@ -1,0 +1,148 @@
+{% extends "admin/base.html" %}
+{% load static %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'admin/css/messages.css' %}">
+    <style>
+        /* Task 15: UI Polishing - Enhanced Admin Interface */
+        
+        /* Improve admin header styling */
+        #header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        #header a:link, #header a:visited {
+            color: #ffffff;
+        }
+        
+        #header h1 {
+            color: #ffffff;
+        }
+        
+        /* Improve button styling */
+        .submit-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .submit-row input[type="submit"],
+        .submit-row input[type="reset"],
+        .submit-row input[type="button"] {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .submit-row input[type="submit"] {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+        }
+        
+        .submit-row input[type="submit"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+        
+        .submit-row input[type="reset"],
+        .submit-row input[type="button"] {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #d0d0d0;
+        }
+        
+        .submit-row input[type="reset"]:hover,
+        .submit-row input[type="button"]:hover {
+            background-color: #e8e8e8;
+            border-color: #b0b0b0;
+        }
+        
+        /* Fieldset improvements */
+        fieldset {
+            border: 1px solid #e0e0e0 !important;
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        
+        fieldset h2 {
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            padding: 10px;
+            margin: -12px -12px 12px -12px;
+        }
+        
+        /* Input field improvements */
+        input[type="text"],
+        input[type="password"],
+        input[type="email"],
+        input[type="number"],
+        input[type="date"],
+        textarea,
+        select {
+            border: 1px solid #d0d0d0 !important;
+            border-radius: 6px !important;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        input[type="text"]:focus,
+        input[type="password"]:focus,
+        input[type="email"]:focus,
+        input[type="number"]:focus,
+        input[type="date"]:focus,
+        textarea:focus,
+        select:focus {
+            border-color: #667eea !important;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
+            outline: none;
+        }
+        
+        /* List view improvements */
+        #result_list {
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+        
+        #result_list tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        /* Help text styling */
+        .help-text {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+            display: block;
+        }
+        
+        /* Select filter improvements */
+        #changelist-filter {
+            background-color: #fafafa;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+        }
+        
+        #changelist-filter h3 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 4px 4px 0 0;
+            margin: -12px -12px 12px -12px;
+            padding: 12px;
+        }
+        
+        /* Readonly field styling */
+        .readonly {
+            background-color: #f5f5f5;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 8px;
+            color: #333;
+        }
+    </style>
+{% endblock %}

@@ -100,3 +100,101 @@ class Employee(models.Model):
     @property
     def full_name_ar(self):
         return self.get_full_name_ar()
+
+
+class AuditLog(models.Model):
+    """
+    Audit Log for tracking OU changes
+    
+    Task 13: Move User Between OUs
+    Logs all employee organizational unit changes for compliance and tracking
+    """
+    
+    # Foreign Key to Employee
+    employee = models.ForeignKey(
+        Employee,
+        on_delete=models.CASCADE,
+        related_name='ou_changes',
+        verbose_name="Employee"
+    )
+    
+    # OU Information
+    old_ou = models.CharField(
+        max_length=255,
+        verbose_name="Previous OU",
+        help_text="Previous organizational unit (e.g., IT or IT/New)"
+    )
+    
+    new_ou = models.CharField(
+        max_length=255,
+        verbose_name="New OU",
+        help_text="New organizational unit (e.g., HR or HR/Management)"
+    )
+    
+    # Change Details
+    changed_by = models.CharField(
+        max_length=100,
+        verbose_name="Changed By",
+        help_text="Username of admin who made the change"
+    )
+    
+    changed_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name="Changed At",
+        help_text="Timestamp of the change"
+    )
+    
+    # Status
+    STATUS_CHOICES = [
+        ('success', 'Success'),
+        ('failed', 'Failed'),
+        ('pending', 'Pending'),
+    ]
+    
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default='success',
+        verbose_name="Status",
+        help_text="Status of the OU change operation"
+    )
+    
+    # Error message (if failed)
+    error_message = models.TextField(
+        blank=True,
+        null=True,
+        verbose_name="Error Message",
+        help_text="Error message if the move failed"
+    )
+    
+    # Old DN for reference
+    old_dn = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name="Old DN",
+        help_text="Previous Distinguished Name"
+    )
+    
+    # New DN for reference
+    new_dn = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name="New DN",
+        help_text="New Distinguished Name"
+    )
+    
+    class Meta:
+        db_table = 'audit_logs'
+        verbose_name = 'Audit Log'
+        verbose_name_plural = 'Audit Logs'
+        ordering = ['-changed_at']
+        indexes = [
+            models.Index(fields=['employee']),
+            models.Index(fields=['changed_at']),
+            models.Index(fields=['status']),
+        ]
+    
+    def __str__(self):
+        return f"{self.employee.ad_username}: {self.old_ou} → {self.new_ou} ({self.changed_at.strftime('%Y-%m-%d %H:%M')})"

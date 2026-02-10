@@ -180,6 +180,67 @@ class LDAPService:
             logger.error(f"Error extracting OU from DN {dn}: {str(e)}")
             return ''
     
+    def get_user_ou_info(self, username):
+        """
+        Get complete OU information for a user
+        
+        Task 11: Fetch Current User OU
+        - Reads distinguishedName from AD
+        - Parses OU path
+        - Returns formatted OU information
+        
+        Args:
+            username: AD username (sAMAccountName)
+            
+        Returns:
+            dict: {
+                'dn': Full Distinguished Name,
+                'ou_path': Parsed OU path (e.g., 'projects/New'),
+                'ou_name': Immediate OU name (e.g., 'projects'),
+                'ou_dn': Full OU DN (e.g., 'OU=projects,OU=New,DC=eissa,DC=local')
+            }
+            or None if user not found
+        """
+        try:
+            user_data = self.search_user(username)
+            
+            if not user_data or not user_data.get('dn'):
+                logger.warning(f"Could not get OU info for user {username}: User not found")
+                return None
+            
+            dn = user_data['dn']
+            
+            # Extract OU path (e.g., "projects/New")
+            ou_path = self.extract_ou_from_dn(dn)
+            
+            # Extract immediate OU name (first OU in the hierarchy)
+            parts = dn.split(',')
+            ou_name = ''
+            ou_dn = ''
+            
+            for i, part in enumerate(parts):
+                if part.strip().startswith('OU='):
+                    if not ou_name:
+                        # This is the immediate OU
+                        ou_name = part.split('=')[1]
+                    # Build the OU DN from this point onwards
+                    ou_dn = ','.join(parts[i:])
+                    break
+            
+            result = {
+                'dn': dn,
+                'ou_path': ou_path,
+                'ou_name': ou_name,
+                'ou_dn': ou_dn
+            }
+            
+            logger.info(f"Retrieved OU info for user {username}: {ou_path}")
+            return result
+            
+        except Exception as e:
+            logger.error(f"Error getting OU info for user {username}: {str(e)}")
+            return None
+    
     def move_user_to_ou(self, username, new_ou, connection=None):
         """
         Move user to a different Organizational Unit (Phase 2)
@@ -239,6 +300,87 @@ class LDAPService:
         except Exception as e:
             logger.error(f"Unexpected error during user move for {username}: {str(e)}")
             return False, f"Error: {str(e)}"
+    
+    def get_all_ous(self):
+        """
+        Task 12: List Available OUs
+        
+        Query Active Directory for all Organizational Units
+        
+        Returns:
+            list: List of dicts with OU information:
+                [{
+                    'name': 'IT',
+                    'dn': 'OU=IT,OU=New,DC=eissa,DC=local',
+                    'path': 'IT/New'
+                }, ...]
+            
+            or empty list if none found or error
+        """
+        try:
+            # Get or create privileged connection
+            admin_user = settings.AD_BIND_USER
+            admin_password = settings.AD_BIND_PASSWORD
+            
+            if not admin_user or not admin_password:
+                logger.warning("No admin credentials configured for OU listing")
+                return []
+            
+            success, conn, error = self.bind_with_credentials(admin_user, admin_password)
+            
+            if not conn or not success:
+                logger.error(f"Failed to bind for OU listing: {error}")
+                return []
+            
+            try:
+                # Search for all organizational units
+                search_filter = '(objectClass=organizationalUnit)'
+                attributes = ['ou', 'distinguishedName']
+                
+                conn.search(
+                    search_base=self.base_dn,
+                    search_filter=search_filter,
+                    search_scope=SUBTREE,
+                    attributes=attributes
+                )
+                
+                ous = []
+                
+                for entry in conn.entries:
+                    try:
+                        ou_name = str(entry.ou[0]) if hasattr(entry, 'ou') and entry.ou else ''
+                        dn = str(entry.distinguishedName) if hasattr(entry, 'distinguishedName') else ''
+                        
+                        if ou_name and dn:
+                            ou_path = self.extract_ou_from_dn(dn)
+                            
+                            ou_info = {
+                                'name': ou_name,
+                                'dn': dn,
+                                'path': ou_path
+                            }
+                            
+                            ous.append(ou_info)
+                    except Exception as e:
+                        logger.warning(f"Error processing OU entry: {str(e)}")
+                        continue
+                
+                conn.unbind()
+                
+                # Sort by name for better display
+                ous.sort(key=lambda x: x['name'])
+                
+                logger.info(f"Retrieved {len(ous)} OUs from AD")
+                return ous
+                
+            except Exception as e:
+                logger.error(f"Error searching for OUs: {str(e)}")
+                conn.unbind()
+                return []
+                
+        except Exception as e:
+            logger.error(f"Unexpected error during OU listing: {str(e)}")
+            return []
     
     def test_connection(self):
         """
