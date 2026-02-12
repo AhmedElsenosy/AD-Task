@@ -2,6 +2,7 @@ asgiref==3.11.1
 Django==5.2.11
 djangorestframework==3.16.1
 djangorestframework_simplejwt==5.5.1
+gunicorn==22.0.0
 ldap3==2.9.1
 mssql-django==1.6
 pyasn1==0.6.2
